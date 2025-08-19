@@ -23,12 +23,16 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Configuração CORS para permitir frontend em outro domínio
+# Configuração CORS mais específica para desenvolvimento
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Em produção, especificar domínios específicos
+    allow_origins=[
+        "http://localhost:3000",  # React dev server
+        "http://127.0.0.1:3000",
+        "http://localhost:3001",  # Porta alternativa
+    ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],
 )
 
@@ -39,6 +43,16 @@ def get_db():
         yield db
     finally:
         db.close()
+
+# Health check endpoint
+@app.get("/")
+def read_root():
+    """Endpoint de teste e health check"""
+    return {
+        "message": "WS Work Cars API funcionando!",
+        "version": "1.0.0",
+        "status": "healthy"
+    }
 
 # Endpoint principal: listagem formatada para o frontend
 @app.get("/cars.json", response_model=List[CarListResponse])
@@ -167,10 +181,5 @@ def delete_car(car_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Carro não encontrado")
     return {"message": "Carro deletado com sucesso"}
 
-@app.get("/")
-def read_root():
-    """Endpoint de teste"""
-    return {"message": "WS Work Cars API funcionando!"}
-
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
