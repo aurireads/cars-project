@@ -1,0 +1,19 @@
+# Diretórios e arquivos do Node.js (Frontend)
+/frontend/node_modules
+
+# Diretórios e arquivos do Python (Backend)
+/backend/__pycache__
+/backend/venv
+
+# Arquivos de variáveis de ambiente
+.env
+
+# Arquivos de log de debug do npm
+npm-debug.log*
+
+# Arquivos de build do React (gerados ao rodar 'npm run build')
+/frontend/build
+
+# Outros arquivos de cache e IDEs
+.DS_Store
+.vscode
