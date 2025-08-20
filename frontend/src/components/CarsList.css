@@ -1,13 +1,13 @@
-/* CarForm Component Styles */
-.car-form {
+/* CarsList Component Styles */
+.cars-list {
   width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
 }
 
-/* Header do formulário */
-.form-header {
-  text-align: center;
+/* Header da listagem */
+.cars-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 2rem;
   padding: 1.5rem;
   background: var(--card-background);
@@ -16,266 +16,243 @@
   border: 1px solid var(--border-color);
 }
 
-.form-header h2 {
+.cars-header h2 {
   color: var(--text-primary);
   font-size: 1.5rem;
   font-weight: 600;
-  margin-bottom: 0.5rem;
 }
 
-.form-header p {
-  color: var(--text-secondary);
-  font-size: 1rem;
-}
-
-/* Container do formulário */
-.form-container {
-  background: var(--card-background);
-  border-radius: var(--border-radius-lg);
-  padding: 2rem;
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--border-color);
-}
-
-/* Grid do formulário */
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
-/* Grupos de campos */
-.form-group {
+.cars-summary {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.form-group.full-width {
-  grid-column: 1 / -1;
-}
-
-/* Labels */
-.form-group label {
-  font-weight: 600;
-  color: var(--text-primary);
-  font-size: 0.875rem;
-}
-
-/* Inputs */
-.form-group input,
-.form-group select,
-.form-group textarea {
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  font-size: 1rem;
-  background: var(--card-background);
-  color: var(--text-primary);
-  transition: var(--transition);
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-
-.form-group input:disabled,
-.form-group select:disabled,
-.form-group textarea:disabled {
-  background: var(--background-color);
-  color: var(--text-secondary);
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-/* Placeholder */
-.form-group input::placeholder,
-.form-group textarea::placeholder {
-  color: var(--text-secondary);
-  opacity: 0.7;
-}
-
-/* Select específico */
-.form-group select {
-  cursor: pointer;
-}
-
-.form-group select:disabled {
-  cursor: not-allowed;
-}
-
-/* Textarea */
-.form-group textarea {
-  resize: vertical;
-  min-height: 100px;
-  font-family: inherit;
-  line-height: 1.5;
-}
-
-/* Ações do formulário */
-.form-actions {
-  display: flex;
-  justify-content: center;
   gap: 1rem;
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--border-color);
+  align-items: center;
 }
 
-/* Botões */
-.btn {
-  padding: 0.75rem 2rem;
-  border: none;
+.cars-count,
+.brands-count {
+  background: var(--primary-color);
+  color: white;
+  padding: 0.5rem 1rem;
   border-radius: var(--border-radius);
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: var(--transition);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.brands-count {
+  background: var(--secondary-color);
+}
+
+/* Empty state */
+.cars-list.empty {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  min-width: 160px;
+  min-height: 300px;
 }
 
-.btn-primary {
+.empty-state {
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.empty-state h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+/* Container das marcas */
+.brands-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Grupo de marca */
+.brand-group {
+  background: var(--card-background);
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+}
+
+.brand-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.brand-count {
+  background: var(--background-color);
+  color: var(--text-secondary);
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--border-radius);
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-left: auto;
+}
+
+/* Grid de carros */
+.cars-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Card do carro */
+.car-card {
+  background: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.car-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-color);
+}
+
+.car-card.clickable {
+  cursor: pointer;
+}
+
+.car-card.clickable:hover {
+  background: #f1f5f9;
+}
+
+/* Header do card */
+.car-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.car-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.car-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.car-year {
   background: var(--primary-color);
   color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--border-radius);
+  font-size: 0.875rem;
+  font-weight: 500;
+  flex-shrink: 0;
 }
 
-.btn-primary:hover:not(:disabled) {
-  background: var(--primary-hover);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+/* Botão de delete */
+.delete-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  flex-shrink: 0;
 }
 
-.btn:disabled {
+.delete-btn:hover:not(:disabled) {
+  background: #dc2626;
+  transform: scale(1.05);
+}
+
+.delete-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
 }
 
-/* Alert messages */
-.alert {
-  padding: 1rem 1.5rem;
-  border-radius: var(--border-radius);
-  margin-bottom: 1.5rem;
-  font-weight: 500;
+/* Spinner pequeno para loading */
+.spinner-small {
+  width: 12px;
+  height: 12px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Detalhes do carro */
+.car-details {
   display: flex;
-  align-items: center;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 1rem;
+}
+
+.car-info {
+  display: flex;
+  flex-direction: column;
   gap: 0.5rem;
 }
 
-.alert-success {
-  background: #ecfdf5;
+.car-model,
+.car-color {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.car-price {
+  font-size: 1.125rem;
+  font-weight: 700;
   color: var(--success-color);
-  border: 1px solid #a7f3d0;
+  text-align: right;
 }
 
-.alert-error {
-  background: #fef2f2;
-  color: var(--error-color);
-  border: 1px solid #fecaca;
+/* Descrição do carro */
+.car-description {
+  border-top: 1px solid var(--border-color);
+  padding-top: 1rem;
+  margin-top: 1rem;
 }
 
-/* Estados de validação */
-.form-group input:invalid,
-.form-group select:invalid {
-  border-color: var(--error-color);
+.car-description p {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0;
 }
 
-.form-group input:valid,
-.form-group select:valid {
-  border-color: var(--success-color);
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-  .car-form {
-    margin: 0;
-  }
-  
-  .form-header {
-    padding: 1rem;
-    margin-bottom: 1rem;
-  }
-  
-  .form-header h2 {
-    font-size: 1.25rem;
-  }
-  
-  .form-container {
-    padding: 1.5rem;
-  }
-  
-  .form-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    margin-bottom: 1rem;
-  }
-  
-  .form-actions {
-    flex-direction: column;
-    margin-top: 1.5rem;
-    padding-top: 1rem;
-  }
-  
-  .btn {
-    width: 100%;
-  }
-}
-
-@media (max-width: 480px) {
-  .form-header {
-    padding: 0.75rem;
-  }
-  
-  .form-container {
-    padding: 1rem;
-  }
-  
-  .form-group input,
-  .form-group select,
-  .form-group textarea {
-    padding: 0.625rem 0.75rem;
-    font-size: 0.875rem;
-  }
-  
-  .btn {
-    padding: 0.625rem 1.5rem;
-    font-size: 0.875rem;
-  }
-}
-
-/* Melhorias de acessibilidade */
-@media (prefers-reduced-motion: reduce) {
-  .form-group input,
-  .form-group select,
-  .form-group textarea,
-  .btn {
-    transition: none;
-  }
-}
-
-/* Estados de foco para acessibilidade */
-.form-group input:focus-visible,
-.form-group select:focus-visible,
-.form-group textarea:focus-visible {
-  outline: 2px solid var(--primary-color);
-  outline-offset: 2px;
-}
-
-.btn:focus-visible {
-  outline: 2px solid var(--primary-color);
-  outline-offset: 2px;
-}
-
-/* Estilos para o modal de confirmação de delete */
+/* Modal de confirmação */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -288,27 +265,49 @@
   justify-content: center;
   z-index: 1000;
   padding: 1rem;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .modal {
-  background: var(--card-background);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-lg);
+  background: var(--card-background, white);
+  border-radius: var(--border-radius-lg, 8px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   max-width: 500px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
+  animation: slideUp 0.2s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .modal-header {
   padding: 1.5rem 1.5rem 0 1.5rem;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
   margin-bottom: 1.5rem;
 }
 
 .modal-header h3 {
   margin: 0;
-  color: var(--text-primary);
+  color: var(--text-primary, #1e293b);
   font-size: 1.25rem;
   font-weight: 600;
 }
@@ -319,31 +318,31 @@
 
 .modal-body p {
   margin: 0 0 1rem 0;
-  color: var(--text-primary);
+  color: var(--text-primary, #1e293b);
 }
 
 .car-preview {
-  background: var(--background-color);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
+  background: var(--background-color, #f8fafc);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: var(--border-radius, 4px);
   padding: 1rem;
   margin: 1rem 0;
 }
 
 .car-preview strong {
   display: block;
-  color: var(--text-primary);
+  color: var(--text-primary, #1e293b);
   font-size: 1.125rem;
   margin-bottom: 0.25rem;
 }
 
 .car-preview span {
-  color: var(--text-secondary);
+  color: var(--text-secondary, #64748b);
   font-size: 0.875rem;
 }
 
 .warning-text {
-  color: var(--error-color);
+  color: #ef4444;
   font-weight: 500;
   font-size: 0.875rem;
 }
@@ -352,12 +351,31 @@
   display: flex;
   gap: 1rem;
   padding: 1.5rem;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--border-color, #e2e8f0);
   justify-content: flex-end;
 }
 
+.btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: var(--border-radius, 4px);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 120px;
+  justify-content: center;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .btn-secondary {
-  background: var(--secondary-color);
+  background: #64748b;
   color: white;
 }
 
@@ -366,49 +384,59 @@
 }
 
 .btn-danger {
-  background: var(--error-color);
+  background: #ef4444;
   color: white;
 }
 
 .btn-danger:hover:not(:disabled) {
-  background: #b91c1c;
+  background: #dc2626;
 }
 
-/* Delete button nos cards */
-.delete-btn {
-  background: var(--error-color);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: var(--transition);
-  font-size: 0.875rem;
-}
-
-.delete-btn:hover:not(:disabled) {
-  background: #b91c1c;
-  transform: scale(1.05);
-}
-
-.delete-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.car-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-/* Responsive modal */
-@media (max-width: 480px) {
+/* Responsive design */
+@media (max-width: 768px) {
+  .cars-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .cars-summary {
+    justify-content: center;
+  }
+  
+  .cars-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .brand-group {
+    padding: 1rem;
+  }
+  
+  .car-card {
+    padding: 1rem;
+  }
+  
+  .car-header {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+  
+  .car-actions {
+    align-self: flex-end;
+  }
+  
+  .car-details {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .car-price {
+    text-align: left;
+  }
+  
   .modal {
     margin: 1rem;
     max-width: calc(100% - 2rem);
@@ -420,5 +448,23 @@
   
   .modal-actions .btn {
     width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .cars-summary {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .brand-title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .brand-count {
+    margin-left: 0;
+    align-self: flex-start;
   }
 }

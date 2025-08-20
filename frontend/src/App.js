@@ -12,10 +12,10 @@ function App() {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('list');
 
-  // Configurar axios para usar /api como prefixo
-  useEffect(() => {
-    axios.defaults.baseURL = '/api';
-  }, []);
+  // Remova esta linha. O proxy já redireciona as chamadas.
+  // useEffect(() => {
+  //   axios.defaults.baseURL = '/api';
+  // }, []);
 
   // Carregar dados iniciais
   useEffect(() => {
@@ -65,7 +65,6 @@ function App() {
   // Função para lidar com clique em um carro
   const handleCarClick = (car) => {
     console.log('Carro selecionado:', car);
-    // Aqui você pode implementar navegação para detalhes do carro
   };
 
   // Função para lidar com delete de carro

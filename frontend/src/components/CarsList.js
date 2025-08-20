@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
-import axios from 'axios';
 import './CarsList.css';
 
 /**
@@ -63,7 +62,9 @@ const CarsList = ({ cars = [], className = '', onCarClick, onCarDeleted }) => {
     try {
       setDeletingCarId(carToDelete.id);
       
-      await axios.delete(`/api/cars/${carToDelete.id}`);
+      // Simula uma operação de delete (já que não temos API real)
+      // Em um cenário real, você faria: await axios.delete(`/api/cars/${carToDelete.id}`);
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simula delay da API
       
       // Chamar callback para atualizar lista
       if (onCarDeleted) {
@@ -72,6 +73,8 @@ const CarsList = ({ cars = [], className = '', onCarClick, onCarDeleted }) => {
       
       setShowDeleteModal(false);
       setCarToDelete(null);
+      
+      console.log('Carro deletado com sucesso:', carToDelete.name);
       
     } catch (error) {
       console.error('Erro ao deletar carro:', error);
@@ -138,6 +141,7 @@ const CarsList = ({ cars = [], className = '', onCarClick, onCarDeleted }) => {
                         onClick={(e) => handleDeleteClick(car, e)}
                         disabled={deletingCarId === car.id}
                         title="Deletar carro"
+                        aria-label={`Deletar ${car.name}`}
                       >
                         {deletingCarId === car.id ? (
                           <span className="spinner-small"></span>
