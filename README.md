@@ -1,133 +1,135 @@
-WS Work Cars - Sistema de Gerenciamento de Veículos
-Descrição do Projeto
-Este é um sistema completo para gerenciamento de carros, marcas e modelos. O projeto é dividido em duas partes: um backend construído com FastAPI e um frontend desenvolvido com React. Ele permite listar, adicionar, atualizar e remover marcas, modelos e carros, além de fornecer uma interface de usuário para visualizar e interagir com os dados.
+# WS Work Cars - Sistema de Gerenciamento de Veículos
 
-Tecnologias Utilizadas
-Backend
-O backend é uma API RESTful construída com Python e o framework FastAPI. As principais dependências são:
+## Descrição do Projeto
 
-fastapi==0.104.1
+Este projeto é um sistema de gerenciamento de carros, marcas e modelos, implementado como uma aplicação web completa. Ele consiste em um backend (API) construído com FastAPI e um frontend (interface de usuário) desenvolvido em React. O sistema permite listar, adicionar, atualizar e remover dados de veículos e suas respectivas marcas e modelos.
 
-uvicorn==0.24.0
+## Tecnologias Utilizadas
 
-sqlalchemy==2.0.23
+O projeto é dividido em dois módulos principais.
 
-python-dotenv==1.0.0
+### Backend (Python)
 
-alembic==1.12.1
+A API RESTful foi desenvolvida com Python, utilizando as seguintes bibliotecas:
 
-pydantic==2.5.0
+- **FastAPI**: Framework web de alta performance
+- **Uvicorn**: Servidor ASGI para rodar a aplicação FastAPI
+- **SQLAlchemy**: Toolkit ORM para interagir com o banco de dados
+- **python-dotenv**: Para carregar variáveis de ambiente
+- **psycopg2-binary**: Driver para PostgreSQL
+- **pydantic**: Biblioteca para validação de dados
 
-Frontend
-O frontend é uma aplicação de página única (SPA) desenvolvida com React. As dependências principais são:
+O banco de dados utilizado por padrão no ambiente de desenvolvimento é o SQLite.
 
-react
+### Frontend (React)
 
-react-dom
+A aplicação de interface de usuário (UI) é um SPA (Single Page Application) criada com React. As principais bibliotecas incluem:
 
-axios
+- **React**: Biblioteca JavaScript para construir interfaces de usuário
+- **axios**: Cliente HTTP para fazer requisições à API
+- **react-scripts**: Scripts de desenvolvimento e build do Create React App
+- **web-vitals**: Para monitorar o desempenho da aplicação web
+- **tailwind**: Biblioteca CSS para agilizar o desenvolvimento
 
-react-scripts
+## Estrutura do Projeto
 
-Estrutura do Projeto
-O projeto está organizado em duas pastas principais: backend e frontend.
+O projeto está organizado em duas pastas principais, `backend` e `frontend`.
 
-backend/
-Contém a lógica da API, o banco de dados e as ferramentas de inicialização.
+### backend/
 
-main.py: Ponto de entrada da API, onde os endpoints são definidos.
+- **main.py**: O arquivo principal que define os endpoints da API usando FastAPI. Ele também configura o CORS para permitir requisições do frontend
+- **models.py**: Define a estrutura do banco de dados para Brand, Model e Car utilizando SQLAlchemy
+- **schemas.py**: Define os esquemas de dados para validação e serialização com Pydantic
+- **crud.py**: Funções de "Create, Read, Update, Delete" para interagir com o banco de dados
+- **database.py**: Estabelece a conexão com o banco de dados
+- **seed_data.py**: Um script para preencher o banco de dados com dados iniciais, como marcas, modelos e alguns carros de exemplo
+- **requirements.txt**: Lista todas as dependências Python necessárias
+- **start.py**: Um script de utilitário para automatizar a configuração e inicialização do backend
 
-models.py: Define os modelos de banco de dados (Brand, Model, Car) usando SQLAlchemy.
+### frontend/
 
-schemas.py: Contém os esquemas de validação de dados para as requisições e respostas da API, utilizando Pydantic.
+- **public/**: Contém arquivos públicos como `index.html`, `manifest.json`, `robots.txt` e ícones. O `manifest.json` define a aplicação como uma PWA (Progressive Web App)
+- **src/**:
+  - **App.js**: O componente raiz da aplicação, responsável por gerenciar o estado, a navegação entre a listagem de carros e o formulário de adição, e a comunicação inicial com a API
+  - **index.js**: O ponto de entrada do React que renderiza o componente App
+  - **App.css**, **index.css**: Arquivos de estilo globais e específicos da aplicação
+  - **components/**: Contém os componentes da UI:
+    - **CarsList.js**: Exibe a lista de carros agrupados por marca
+    - **CarForm.js**: O formulário para adicionar novos carros
+    - **DeleteConfirmation.js**: Um modal reutilizável para confirmar a exclusão de itens
+- **package.json**: Informações do projeto e dependências do frontend
+- **package-lock.json**: Lista detalhada de todas as dependências instaladas
 
-crud.py: Funções para interagir com o banco de dados (Criar, Ler, Atualizar, Deletar).
+## Instalação e Execução
 
-database.py: Gerencia a conexão com o banco de dados, utilizando SQLite localmente.
+Para iniciar o projeto, siga os passos abaixo em dois terminais separados.
 
-requirements.txt: Lista todas as dependências Python.
+### 1. Iniciar o Backend
 
-seed_data.py: Script para popular o banco de dados com dados de exemplo iniciais.
+Abra um terminal e navegue até a pasta backend:
 
-start.py: Script de inicialização que verifica a instalação do Python e das dependências, cria e popula o banco de dados, e inicia o servidor backend.
-
-frontend/
-Contém a aplicação React e seus recursos.
-
-public/: Arquivos estáticos como index.html, manifest.json e robots.txt.
-
-src/: Contém o código-fonte da aplicação React.
-
-App.js: O componente principal que gerencia o estado da aplicação e a navegação entre a listagem e o formulário.
-
-components/: Subdiretório para componentes reutilizáveis como CarsList.js, CarForm.js e DeleteConfirmation.js.
-
-Instalação e Execução
-As instruções a seguir foram adaptadas do script start.py fornecido no backend.
-
-Navegue para a pasta backend:
-
-Bash
-
+```bash
 cd backend
-Execute o script de inicialização:
+```
 
-Bash
+Execute o script start.py. Ele irá cuidar da configuração do ambiente Python, instalar as dependências e preparar o banco de dados:
 
+```bash
 python start.py
-O script irá verificar a versão do Python, criar um ambiente virtual (venv), instalar as dependências, criar o banco de dados cars.db e inserir dados de exemplo, se necessário.
+```
 
-Inicie o servidor backend:
-Pressione ENTER no terminal para iniciar o servidor. O backend será executado na porta 8000.
+Pressione ENTER para iniciar o servidor. O backend será executado na porta 8000.
 
-Abra um novo terminal e navegue para a pasta frontend:
+### 2. Iniciar o Frontend
 
-Bash
+Abra um NOVO terminal e navegue até a pasta frontend:
 
-cd ../frontend
-Instale as dependências do frontend:
+```bash
+cd frontend
+```
 
-Bash
+Instale as dependências do Node.js (apenas na primeira vez):
 
+```bash
 npm install
-Inicie a aplicação frontend:
+```
 
-Bash
+Inicie a aplicação React:
 
+```bash
 npm start
-A aplicação será executada na porta 3000 e abrirá automaticamente no seu navegador.
+```
 
-Endpoints da API (Resumo de backend/main.py)
-A API oferece endpoints CRUD para gerenciamento de marcas (/brands), modelos (/models) e carros (/cars).
+O frontend será executado na porta 3000 e a aplicação será aberta automaticamente no seu navegador.
 
-GET /cars.json: Retorna a lista completa de carros em um formato específico para o frontend.
+## Endpoints da API
 
-GET /brands: Lista todas as marcas.
+A API foi projetada para ser consumida pelo frontend e oferece as seguintes funcionalidades principais:
 
-POST /brands: Cria uma nova marca.
+### Listagem de Carros para o Frontend
 
-GET /brands/{brand_id}: Retorna uma marca específica por ID.
+- **GET /cars.json**: Retorna a lista de carros com as informações de marca e modelo, formatada para exibição na UI
 
-PUT /brands/{brand_id}: Atualiza uma marca por ID.
+### Endpoints CRUD para Marcas (/brands)
 
-DELETE /brands/{brand_id}: Deleta uma marca por ID.
+- **POST /brands**: Cria uma nova marca
+- **GET /brands**: Lista todas as marcas
+- **GET /brands/{brand_id}**: Obtém uma marca por ID
+- **PUT /brands/{brand_id}**: Atualiza uma marca por ID
+- **DELETE /brands/{brand_id}**: Deleta uma marca por ID
 
-GET /models: Lista todos os modelos.
+### Endpoints CRUD para Modelos (/models)
 
-POST /models: Cria um novo modelo.
+- **POST /models**: Cria um novo modelo, verificando se a marca associada existe
+- **GET /models**: Lista todos os modelos com os dados da marca associada
+- **GET /models/{model_id}**: Obtém um modelo por ID
+- **PUT /models/{model_id}**: Atualiza um modelo por ID
+- **DELETE /models/{model_id}**: Deleta um modelo por ID
 
-GET /models/{model_id}: Retorna um modelo específico por ID.
+### Endpoints CRUD para Carros (/cars)
 
-PUT /models/{model_id}: Atualiza um modelo por ID.
-
-DELETE /models/{model_id}: Deleta um modelo por ID.
-
-GET /cars: Lista todos os carros.
-
-POST /cars: Cria um novo carro.
-
-GET /cars/{car_id}: Retorna um carro específico por ID.
-
-PUT /cars/{car_id}: Atualiza um carro por ID.
-
-DELETE /cars/{car_id}: Deleta um carro por ID.
+- **POST /cars**: Cria um novo carro, verificando se o modelo associado existe
+- **GET /cars**: Lista todos os carros com informações detalhadas de modelo e marca
+- **GET /cars/{car_id}**: Obtém um carro por ID
+- **PUT /cars/{car_id}**: Atualiza um carro por ID
+- **DELETE /cars/{car_id}**: Deleta um carro por ID
