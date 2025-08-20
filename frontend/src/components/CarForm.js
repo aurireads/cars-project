@@ -1,188 +1,229 @@
-import React, { useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import './CarsList.css';
+import axios from 'axios';
+import './CarForm.css';
 
-/**
- * CarsList Component
- * 
- * Componente para exibir uma listagem de veículos agrupada por marcas.
- * 
- * @param {Object} props - Propriedades do componente
- * @param {Array} props.cars - Array de objetos representando os carros
- * @param {string} props.className - Classe CSS adicional (opcional)
- * @param {Function} props.onCarClick - Função callback ao clicar em um carro (opcional)
- * 
- * Estrutura esperada para cada carro:
- * {
- *   id: number,
- *   name: string,
- *   brand: string,
- *   model: string,
- *   year: number,
- *   color: string,
- *   price: number (em centavos),
- *   description: string
- * }
- * 
- * Exemplo de uso:
- * 
- * ```jsx
- * import CarsList from './components/CarsList';
- * 
- * const cars = [
- *   {
- *     id: 1,
- *     name: "Corolla XEI",
- *     brand: "Toyota",
- *     model: "Corolla",
- *     year: 2023,
- *     color: "Branco",
- *     price: 9500000,
- *     description: "Sedan confortável"
- *   }
- * ];
- * 
- * function App() {
- *   const handleCarClick = (car) => {
- *     console.log('Carro selecionado:', car);
- *   };
- * 
- *   return (
- *     <CarsList 
- *       cars={cars}
- *       onCarClick={handleCarClick}
- *       className="custom-cars-list"
- *     />
- *   );
- * }
- * ```
- */
-const CarsList = ({ cars = [], className = '', onCarClick }) => {
-  // Agrupa os carros por marca usando useMemo para otimização
-  const carsByBrand = useMemo(() => {
-    return cars.reduce((acc, car) => {
-      const brand = car.brand;
-      if (!acc[brand]) {
-        acc[brand] = [];
-      }
-      acc[brand].push(car);
-      return acc;
-    }, {});
-  }, [cars]);
+const CarForm = ({ brands, models, onCarAdded }) => {
+  const [carData, setCarData] = useState({
+    name: '',
+    model_id: '',
+    year: '',
+    color: '',
+    price: '',
+    description: '',
+  });
+  const [loading, setLoading] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState(null);
 
-  // Ordena as marcas alfabeticamente
-  const sortedBrands = useMemo(() => {
-    return Object.keys(carsByBrand).sort();
-  }, [carsByBrand]);
-
-  // Função para formatar preço
-  const formatPrice = (priceInCents) => {
-    if (!priceInCents) return 'Preço não informado';
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(priceInCents / 100);
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setCarData({
+      ...carData,
+      [name]: value,
+    });
   };
 
-  // Função para lidar com clique no carro
-  const handleCarClick = (car) => {
-    if (onCarClick && typeof onCarClick === 'function') {
-      onCarClick(car);
+  const handlePriceChange = (e) => {
+    const priceInCents = Math.round(parseFloat(e.target.value.replace(',', '.')) * 100);
+    setCarData({
+      ...carData,
+      price: isNaN(priceInCents) ? '' : priceInCents,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setSubmitStatus(null);
+
+    const price = carData.price ? parseFloat(carData.price) : null;
+    const year = carData.year ? parseInt(carData.year) : null;
+
+    if (price && isNaN(price) || year && isNaN(year)) {
+      setSubmitStatus({ type: 'error', message: 'Dados de ano ou preço inválidos.' });
+      setLoading(false);
+      return;
+    }
+
+    try {
+      await axios.post('/cars', carData);
+      setSubmitStatus({ type: 'success', message: 'Carro adicionado com sucesso!' });
+      setCarData({
+        name: '',
+        model_id: '',
+        year: '',
+        color: '',
+        price: '',
+        description: '',
+      });
+      onCarAdded();
+    } catch (err) {
+      console.error('Erro ao adicionar carro:', err);
+      setSubmitStatus({ type: 'error', message: 'Erro ao adicionar carro. Verifique os dados.' });
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (!cars || cars.length === 0) {
-    return (
-      <div className={`cars-list empty ${className}`}>
-        <div className="empty-state">
-          <h3>🚗 Nenhum carro encontrado</h3>
-          <p>Adicione alguns carros para vê-los listados aqui.</p>
-        </div>
-      </div>
-    );
-  }
+  const getModelsByBrand = (brandId) => {
+    return models.filter((model) => model.brand.id === parseInt(brandId));
+  };
+  
+  const getBrandByModel = (modelId) => {
+    const model = models.find(m => m.id === parseInt(modelId));
+    return model ? model.brand : null;
+  };
+
+  const getFilteredModels = () => {
+    const brandId = getBrandByModel(carData.model_id)?.id;
+    return brandId ? getModelsByBrand(brandId) : [];
+  };
 
   return (
-    <div className={`cars-list ${className}`}>
-      <div className="cars-header">
-        <h2>📋 Listagem de Veículos</h2>
-        <div className="cars-summary">
-          <span className="cars-count">
-            {cars.length} {cars.length === 1 ? 'veículo' : 'veículos'}
-          </span>
-          <span className="brands-count">
-            {sortedBrands.length} {sortedBrands.length === 1 ? 'marca' : 'marcas'}
-          </span>
+    <form className="car-form" onSubmit={handleSubmit}>
+      <div className="form-header">
+        <h2>➕ Adicionar Novo Carro</h2>
+        <p>Preencha os campos abaixo para cadastrar um novo veículo.</p>
+      </div>
+      <div className="form-container">
+        {submitStatus && (
+          <div className={`alert alert-${submitStatus.type}`}>
+            {submitStatus.message}
+          </div>
+        )}
+        <div className="form-grid">
+          <div className="form-group">
+            <label htmlFor="brand-select">Marca</label>
+            <select
+              id="brand-select"
+              value={getBrandByModel(carData.model_id)?.id || ''}
+              onChange={(e) => {
+                const brandId = e.target.value;
+                const newModels = getModelsByBrand(brandId);
+                setCarData({
+                  ...carData,
+                  model_id: newModels.length > 0 ? newModels[0].id : '',
+                });
+              }}
+              required
+            >
+              <option value="" disabled>Selecione uma marca</option>
+              {brands.map((brand) => (
+                <option key={brand.id} value={brand.id}>
+                  {brand.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group">
+            <label htmlFor="model-select">Modelo</label>
+            <select
+              id="model-select"
+              name="model_id"
+              value={carData.model_id}
+              onChange={handleInputChange}
+              required
+              disabled={!getBrandByModel(carData.model_id)?.id}
+            >
+              <option value="" disabled>Selecione um modelo</option>
+              {getFilteredModels().map((model) => (
+                <option key={model.id} value={model.id}>
+                  {model.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group">
+            <label htmlFor="name">Nome</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={carData.name}
+              onChange={handleInputChange}
+              placeholder="Ex: Corolla XEI"
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="year">Ano</label>
+            <input
+              type="number"
+              id="year"
+              name="year"
+              value={carData.year}
+              onChange={handleInputChange}
+              placeholder="Ex: 2023"
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="color">Cor</label>
+            <input
+              type="text"
+              id="color"
+              name="color"
+              value={carData.color}
+              onChange={handleInputChange}
+              placeholder="Ex: Branco"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="price">Preço (R$)</label>
+            <input
+              type="number"
+              id="price"
+              name="price"
+              value={carData.price}
+              onChange={handleInputChange}
+              placeholder="Ex: 95000.00"
+              step="any"
+            />
+          </div>
+          <div className="form-group full-width">
+            <label htmlFor="description">Descrição</label>
+            <textarea
+              id="description"
+              name="description"
+              value={carData.description}
+              onChange={handleInputChange}
+              placeholder="Descreva o carro..."
+            ></textarea>
+          </div>
+        </div>
+        <div className="form-actions">
+          <button type="submit" className="btn btn-primary" disabled={loading}>
+            {loading ? (
+              <>
+                <span className="spinner-small"></span> Adicionando...
+              </>
+            ) : (
+              'Adicionar Carro'
+            )}
+          </button>
         </div>
       </div>
-
-      <div className="brands-container">
-        {sortedBrands.map(brand => (
-          <div key={brand} className="brand-group">
-            <h3 className="brand-title">
-              🏷️ {brand}
-              <span className="brand-count">
-                ({carsByBrand[brand].length})
-              </span>
-            </h3>
-            
-            <div className="cars-grid">
-              {carsByBrand[brand].map(car => (
-                <div 
-                  key={car.id} 
-                  className={`car-card ${onCarClick ? 'clickable' : ''}`}
-                  onClick={() => handleCarClick(car)}
-                >
-                  <div className="car-header">
-                    <h4 className="car-name">{car.name}</h4>
-                    <span className="car-year">{car.year}</span>
-                  </div>
-                  
-                  <div className="car-details">
-                    <div className="car-info">
-                      <span className="car-model">
-                        🚙 {car.model}
-                      </span>
-                      {car.color && (
-                        <span className="car-color">
-                          🎨 {car.color}
-                        </span>
-                      )}
-                    </div>
-                    
-                    <div className="car-price">
-                      💰 {formatPrice(car.price)}
-                    </div>
-                  </div>
-                  
-                  {car.description && (
-                    <div className="car-description">
-                      <p>{car.description}</p>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+    </form>
   );
 };
 
-CarsList.propTypes = {
-  cars: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.number.isRequired,
-    name: PropTypes.string.isRequired,
-    brand: PropTypes.string.isRequired,
-    model: PropTypes.string.isRequired,
-    year: PropTypes.number.isRequired,
-    color: PropTypes.string,
-    price: PropTypes.number,
-    description: PropTypes.string
-  })),
-  className: PropTypes.string,
-  onCarClick: PropTypes.func
+CarForm.propTypes = {
+  brands: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      name: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+  models: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      name: PropTypes.string.isRequired,
+      brand: PropTypes.shape({
+        id: PropTypes.number.isRequired,
+      }).isRequired,
+    })
+  ).isRequired,
+  onCarAdded: PropTypes.func.isRequired,
 };
 
-export default CarsList;
+export default CarForm;

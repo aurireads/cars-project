@@ -1,63 +1,16 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
+import axios from 'axios';
 import './CarsList.css';
 
 /**
- * CarsList Component
- * 
- * Componente para exibir uma listagem de veículos agrupada por marcas.
- * 
- * @param {Object} props - Propriedades do componente
- * @param {Array} props.cars - Array de objetos representando os carros
- * @param {string} props.className - Classe CSS adicional (opcional)
- * @param {Function} props.onCarClick - Função callback ao clicar em um carro (opcional)
- * 
- * Estrutura esperada para cada carro:
- * {
- *   id: number,
- *   name: string,
- *   brand: string,
- *   model: string,
- *   year: number,
- *   color: string,
- *   price: number (em centavos),
- *   description: string
- * }
- * 
- * Exemplo de uso:
- * 
- * ```jsx
- * import CarsList from './components/CarsList';
- * 
- * const cars = [
- *   {
- *     id: 1,
- *     name: "Corolla XEI",
- *     brand: "Toyota",
- *     model: "Corolla",
- *     year: 2023,
- *     color: "Branco",
- *     price: 9500000,
- *     description: "Sedan confortável"
- *   }
- * ];
- * 
- * function App() {
- *   const handleCarClick = (car) => {
- *     console.log('Carro selecionado:', car);
- *   };
- * 
- *   return (
- *     <CarsList 
- *       cars={cars}
- *       onCarClick={handleCarClick}
- *       className="custom-cars-list"
- *     />
- *   );
- * }
- * ```
+ * CarsList Component com funcionalidade de delete
  */
-const CarsList = ({ cars = [], className = '', onCarClick }) => {
+const CarsList = ({ cars = [], className = '', onCarClick, onCarDeleted }) => {
+  const [deletingCarId, setDeletingCarId] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [carToDelete, setCarToDelete] = useState(null);
+
   // Agrupa os carros por marca usando useMemo para otimização
   const carsByBrand = useMemo(() => {
     return cars.reduce((acc, car) => {
@@ -85,17 +38,60 @@ const CarsList = ({ cars = [], className = '', onCarClick }) => {
   };
 
   // Função para lidar com clique no carro
-  const handleCarClick = (car) => {
+  const handleCarClick = (car, event) => {
+    // Não abrir detalhes se clicou no botão de delete
+    if (event.target.closest('.delete-btn')) {
+      return;
+    }
+    
     if (onCarClick && typeof onCarClick === 'function') {
       onCarClick(car);
     }
+  };
+
+  // Função para abrir modal de confirmação
+  const handleDeleteClick = (car, event) => {
+    event.stopPropagation();
+    setCarToDelete(car);
+    setShowDeleteModal(true);
+  };
+
+  // Função para confirmar delete
+  const handleConfirmDelete = async () => {
+    if (!carToDelete) return;
+
+    try {
+      setDeletingCarId(carToDelete.id);
+      
+      await axios.delete(`/api/cars/${carToDelete.id}`);
+      
+      // Chamar callback para atualizar lista
+      if (onCarDeleted) {
+        onCarDeleted(carToDelete.id);
+      }
+      
+      setShowDeleteModal(false);
+      setCarToDelete(null);
+      
+    } catch (error) {
+      console.error('Erro ao deletar carro:', error);
+      alert('Erro ao deletar carro. Tente novamente.');
+    } finally {
+      setDeletingCarId(null);
+    }
+  };
+
+  // Função para cancelar delete
+  const handleCancelDelete = () => {
+    setShowDeleteModal(false);
+    setCarToDelete(null);
   };
 
   if (!cars || cars.length === 0) {
     return (
       <div className={`cars-list empty ${className}`}>
         <div className="empty-state">
-          <h3>🚗 Nenhum carro encontrado</h3>
+          <h3>Nenhum carro encontrado</h3>
           <p>Adicione alguns carros para vê-los listados aqui.</p>
         </div>
       </div>
@@ -105,7 +101,7 @@ const CarsList = ({ cars = [], className = '', onCarClick }) => {
   return (
     <div className={`cars-list ${className}`}>
       <div className="cars-header">
-        <h2>📋 Listagem de Veículos</h2>
+        <h2>Listagem de Veículos</h2>
         <div className="cars-summary">
           <span className="cars-count">
             {cars.length} {cars.length === 1 ? 'veículo' : 'veículos'}
@@ -120,7 +116,7 @@ const CarsList = ({ cars = [], className = '', onCarClick }) => {
         {sortedBrands.map(brand => (
           <div key={brand} className="brand-group">
             <h3 className="brand-title">
-              🏷️ {brand}
+              {brand}
               <span className="brand-count">
                 ({carsByBrand[brand].length})
               </span>
@@ -131,27 +127,41 @@ const CarsList = ({ cars = [], className = '', onCarClick }) => {
                 <div 
                   key={car.id} 
                   className={`car-card ${onCarClick ? 'clickable' : ''}`}
-                  onClick={() => handleCarClick(car)}
+                  onClick={(e) => handleCarClick(car, e)}
                 >
                   <div className="car-header">
                     <h4 className="car-name">{car.name}</h4>
-                    <span className="car-year">{car.year}</span>
+                    <div className="car-actions">
+                      <span className="car-year">{car.year}</span>
+                      <button
+                        className="delete-btn"
+                        onClick={(e) => handleDeleteClick(car, e)}
+                        disabled={deletingCarId === car.id}
+                        title="Deletar carro"
+                      >
+                        {deletingCarId === car.id ? (
+                          <span className="spinner-small"></span>
+                        ) : (
+                          '🗑️'
+                        )}
+                      </button>
+                    </div>
                   </div>
                   
                   <div className="car-details">
                     <div className="car-info">
                       <span className="car-model">
-                        🚙 {car.model}
+                        {car.model}
                       </span>
                       {car.color && (
                         <span className="car-color">
-                          🎨 {car.color}
+                          {car.color}
                         </span>
                       )}
                     </div>
                     
                     <div className="car-price">
-                      💰 {formatPrice(car.price)}
+                      {formatPrice(car.price)}
                     </div>
                   </div>
                   
@@ -166,6 +176,50 @@ const CarsList = ({ cars = [], className = '', onCarClick }) => {
           </div>
         ))}
       </div>
+
+      {/* Modal de confirmação de delete */}
+      {showDeleteModal && (
+        <div className="modal-overlay" onClick={handleCancelDelete}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Confirmar Exclusão</h3>
+            </div>
+            
+            <div className="modal-body">
+              <p>Tem certeza que deseja deletar o veículo:</p>
+              <div className="car-preview">
+                <strong>{carToDelete?.name}</strong>
+                <span>{carToDelete?.brand} {carToDelete?.model} ({carToDelete?.year})</span>
+              </div>
+              <p className="warning-text">Esta ação não pode ser desfeita.</p>
+            </div>
+            
+            <div className="modal-actions">
+              <button 
+                className="btn btn-secondary"
+                onClick={handleCancelDelete}
+                disabled={deletingCarId}
+              >
+                Cancelar
+              </button>
+              <button 
+                className="btn btn-danger"
+                onClick={handleConfirmDelete}
+                disabled={deletingCarId}
+              >
+                {deletingCarId ? (
+                  <>
+                    <span className="spinner-small"></span>
+                    Deletando...
+                  </>
+                ) : (
+                  'Confirmar Exclusão'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -182,7 +236,8 @@ CarsList.propTypes = {
     description: PropTypes.string
   })),
   className: PropTypes.string,
-  onCarClick: PropTypes.func
+  onCarClick: PropTypes.func,
+  onCarDeleted: PropTypes.func
 };
 
 export default CarsList;

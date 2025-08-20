@@ -12,6 +12,11 @@ function App() {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('list');
 
+  // Configurar axios para usar /api como prefixo
+  useEffect(() => {
+    axios.defaults.baseURL = '/api';
+  }, []);
+
   // Carregar dados iniciais
   useEffect(() => {
     loadInitialData();
@@ -20,6 +25,7 @@ function App() {
   const loadInitialData = async () => {
     try {
       setLoading(true);
+      setError(null);
       
       // Carregar carros, marcas e modelos em paralelo
       const [carsResponse, brandsResponse, modelsResponse] = await Promise.all([
@@ -31,10 +37,20 @@ function App() {
       setCars(carsResponse.data);
       setBrands(brandsResponse.data);
       setModels(modelsResponse.data);
-      setError(null);
+      
+      console.log('Dados carregados:', {
+        cars: carsResponse.data.length,
+        brands: brandsResponse.data.length,
+        models: modelsResponse.data.length
+      });
+      
     } catch (err) {
       console.error('Erro ao carregar dados:', err);
-      setError('Erro ao carregar dados. Verifique se a API está funcionando.');
+      setError(
+        err.response?.status === 404 
+          ? 'API não encontrada. Verifique se o backend está rodando na porta 8000.'
+          : 'Erro ao carregar dados. Verifique se a API está funcionando.'
+      );
     } finally {
       setLoading(false);
     }
@@ -44,6 +60,21 @@ function App() {
   const handleCarAdded = () => {
     loadInitialData();
     setActiveTab('list');
+  };
+
+  // Função para lidar com clique em um carro
+  const handleCarClick = (car) => {
+    console.log('Carro selecionado:', car);
+    // Aqui você pode implementar navegação para detalhes do carro
+  };
+
+  // Função para lidar com delete de carro
+  const handleCarDeleted = (carId) => {
+    // Remove o carro da lista local imediatamente para melhor UX
+    setCars(prevCars => prevCars.filter(car => car.id !== carId));
+    
+    // Opcionalmente, recarregar dados para garantir sincronização
+    // loadInitialData();
   };
 
   if (loading) {
@@ -61,10 +92,18 @@ function App() {
     return (
       <div className="app">
         <div className="error">
-          <h2>Erro</h2>
+          <h2>Erro de Conexão</h2>
           <p>{error}</p>
+          <div style={{ marginTop: '1rem', fontSize: '0.875rem', color: '#64748b' }}>
+            <p>Certifique-se de que:</p>
+            <ul style={{ textAlign: 'left', marginTop: '0.5rem' }}>
+              <li>• O backend FastAPI está rodando na porta 8000</li>
+              <li>• Execute: <code>python main.py</code> na pasta do backend</li>
+              <li>• O frontend está rodando na porta 3000</li>
+            </ul>
+          </div>
           <button onClick={loadInitialData} className="retry-btn">
-            Tentar Novamente
+            🔄 Tentar Novamente
           </button>
         </div>
       </div>
@@ -83,7 +122,7 @@ function App() {
           className={`nav-btn ${activeTab === 'list' ? 'active' : ''}`}
           onClick={() => setActiveTab('list')}
         >
-          📋 Listagem de Carros
+          📋 Listagem de Carros ({cars.length})
         </button>
         <button 
           className={`nav-btn ${activeTab === 'form' ? 'active' : ''}`}
@@ -95,7 +134,11 @@ function App() {
 
       <main className="app-main">
         {activeTab === 'list' && (
-          <CarsList cars={cars} />
+          <CarsList 
+            cars={cars} 
+            onCarClick={handleCarClick}
+            onCarDeleted={handleCarDeleted}
+          />
         )}
         
         {activeTab === 'form' && (
@@ -109,6 +152,9 @@ function App() {
 
       <footer className="app-footer">
         <p>© 2025 WS Work Cars - Teste Frontend React</p>
+        <p style={{ fontSize: '0.75rem', opacity: 0.7, marginTop: '0.5rem' }}>
+          Backend: FastAPI | Frontend: React | Total de veículos: {cars.length}
+        </p>
       </footer>
     </div>
   );
