@@ -10,9 +10,11 @@ load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 if DATABASE_URL:
-    # Render às vezes usa postgres:// mas SQLAlchemy precisa de postgresql://
+    # Para asyncpg, trocar postgres:// por postgresql+asyncpg://
     if DATABASE_URL.startswith("postgres://"):
-        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+asyncpg://", 1)
+    elif not DATABASE_URL.startswith("postgresql+asyncpg://"):
+        DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
 else:
     # Configuração local
     DB_USER = os.getenv("DB_USER", "postgres")
@@ -21,19 +23,13 @@ else:
     DB_PORT = os.getenv("DB_PORT", "5432")
     DB_NAME = os.getenv("DB_NAME", "cars_project")
     
-    DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    DATABASE_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
 # Configurações do engine para produção
-engine_kwargs = {}
-if os.getenv("DATABASE_URL"):  # Se estiver no Render
-    engine_kwargs = {
-        "pool_pre_ping": True,
-        "pool_recycle": 300,
-        "connect_args": {
-            "connect_timeout": 60,
-            "sslmode": "require"
-        }
-    }
+engine_kwargs = {
+    "pool_pre_ping": True,
+    "pool_recycle": 300,
+}
 
 engine = create_engine(DATABASE_URL, **engine_kwargs)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
