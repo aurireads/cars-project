@@ -6,29 +6,32 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Use DATABASE_URL do Render ou fallback para local
+# Use DATABASE_URL from Render or fallback to local
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 if DATABASE_URL:
-    # Para asyncpg, trocar postgres:// por postgresql+asyncpg://
+    # For synchronous SQLAlchemy, use psycopg2 (not asyncpg)
     if DATABASE_URL.startswith("postgres://"):
-        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+asyncpg://", 1)
-    elif not DATABASE_URL.startswith("postgresql+asyncpg://"):
-        DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
+        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+    # Remove any asyncpg references for sync operations
+    if "asyncpg" in DATABASE_URL:
+        DATABASE_URL = DATABASE_URL.replace("+asyncpg", "")
 else:
-    # Configuração local
+    # Local configuration
     DB_USER = os.getenv("DB_USER", "postgres")
     DB_PASSWORD = os.getenv("DB_PASSWORD", "password")
     DB_HOST = os.getenv("DB_HOST", "localhost")
     DB_PORT = os.getenv("DB_PORT", "5432")
     DB_NAME = os.getenv("DB_NAME", "cars_project")
     
-    DATABASE_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
-# Configurações do engine para produção
+# Engine configuration for production
 engine_kwargs = {
     "pool_pre_ping": True,
     "pool_recycle": 300,
+    "pool_timeout": 20,
+    "max_overflow": 0,
 }
 
 engine = create_engine(DATABASE_URL, **engine_kwargs)
