@@ -34,11 +34,11 @@ def seed_database():
         
         # Criar alguns carros de exemplo
         cars = [
-            Car(name="Corolla XEI", model_id=corolla.id, year=2023, color="Branco", price=9500000, description="Sedan confortável"),
+            Car(name="Corolla XEI", model_id=corolla.id, year=2023, color="Branco", price=950000, description="Sedan confortável"),
             Car(name="Corolla GLI", model_id=corolla.id, year=2022, color="Prata", price=8500000, description="Versão intermediária"),
-            Car(name="Civic Sport", model_id=civic.id, year=2023, color="Preto", price=12000000, description="Esportivo e elegante"),
-            Car(name="Focus Titanium", model_id=focus.id, year=2021, color="Azul", price=7500000, description="Compacto premium"),
-            Car(name="Golf GTI", model_id=golf.id, year=2023, color="Vermelho", price=15000000, description="Hot hatch alemão"),
+            Car(name="Civic Sport", model_id=civic.id, year=2023, color="Preto", price=1200000, description="Esportivo e elegante"),
+            Car(name="Focus Titanium", model_id=focus.id, year=2021, color="Azul", price=750000, description="Compacto premium"),
+            Car(name="Golf GTI", model_id=golf.id, year=2023, color="Vermelho", price=1500000, description="Hot hatch alemão"),
         ]
         
         db.add_all(cars)

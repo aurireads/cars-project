@@ -20,18 +20,18 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="WS Work Cars API",
-    description="API para gerenciamento de carros, marcas e modelos - Deploy no Render",
+    description="API para gerenciamento de carros, marcas e modelos",
     version="1.0.0"
 )
 
-# Configuração CORS para produção no Render
+# Configuração CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",  # Desenvolvimento local
+        "http://localhost:3000",
         "http://127.0.0.1:3000",
-        "http://localhost:3001",
-        "*"  # Para produção - você pode especificar o domínio do seu frontend depois
+        "https://seu-frontend.vercel.app",  # Adicione seu domínio do frontend aqui
+        "*"  # Remover em produção
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE"],
@@ -51,16 +51,21 @@ def get_db():
 def read_root():
     """Endpoint de teste e health check"""
     return {
-        "message": "WS Work Cars API funcionando no Render!",
+        "message": "🚗 WS Work Cars API - Funcionando no Railway!",
         "version": "1.0.0",
         "status": "healthy",
-        "docs": "/docs"
+        "docs": "/docs",
+        "database": "PostgreSQL" if os.getenv("DATABASE_URL") else "SQLite"
     }
 
 @app.get("/health")
 def health_check():
     """Health check para monitoramento"""
-    return {"status": "healthy", "database": "connected"}
+    return {
+        "status": "healthy", 
+        "database": "connected",
+        "environment": "production" if os.getenv("DATABASE_URL") else "development"
+    }
 
 # Endpoint principal: listagem formatada para o frontend
 @app.get("/cars.json", response_model=List[CarListResponse])
@@ -189,7 +194,7 @@ def delete_car(car_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Carro não encontrado")
     return {"message": "Carro deletado com sucesso"}
 
-# Configuração para rodar no Render
+# Configuração para rodar em produção
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
