@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -19,17 +20,18 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="WS Work Cars API",
-    description="API para gerenciamento de carros, marcas e modelos",
+    description="API para gerenciamento de carros, marcas e modelos - Deploy no Render",
     version="1.0.0"
 )
 
-# Configuração CORS mais específica para desenvolvimento
+# Configuração CORS para produção no Render
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",  # React dev server
+        "http://localhost:3000",  # Desenvolvimento local
         "http://127.0.0.1:3000",
-        "http://localhost:3001",  # Porta alternativa
+        "http://localhost:3001",
+        "*"  # Para produção - você pode especificar o domínio do seu frontend depois
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE"],
@@ -49,10 +51,16 @@ def get_db():
 def read_root():
     """Endpoint de teste e health check"""
     return {
-        "message": "WS Work Cars API funcionando!",
+        "message": "WS Work Cars API funcionando no Render!",
         "version": "1.0.0",
-        "status": "healthy"
+        "status": "healthy",
+        "docs": "/docs"
     }
+
+@app.get("/health")
+def health_check():
+    """Health check para monitoramento"""
+    return {"status": "healthy", "database": "connected"}
 
 # Endpoint principal: listagem formatada para o frontend
 @app.get("/cars.json", response_model=List[CarListResponse])
@@ -181,5 +189,7 @@ def delete_car(car_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Carro não encontrado")
     return {"message": "Carro deletado com sucesso"}
 
+# Configuração para rodar no Render
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
